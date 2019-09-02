@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 1、导入vue.js -->
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+<!--2、创建一个要控制的区域-->
+<div id="app">
+    <p>{{ msg | msgFormat }}</p>
+
+    <br/>
+
+    <p>{{ msg | msgFormat2('疯狂+1','23') }}</p>
+
+    <br/>
+
+    <p>{{ msg | msgFormat2('疯狂+1','23') | test }}</p>
+</div>
+<script>
+
+    // 定义一个Vue全局过滤器，名字叫做 msgFormat
+    Vue.filter('msgFormat', function (msg) {
+        // return msg.replace('单纯', '邪恶');
+        return msg.replace(/单纯/g, '邪恶');
+    });
+    Vue.filter('msgFormat2', function (msg,arg1,arg2) {
+        return msg.replace(/单纯/g, arg1+arg2);
+    });
+    Vue.filter('test', function (msg) {
+        return msg + '++++++++';
+    });
+
+    //3、创建一个vue实例
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            msg: '曾经，我也是一个单纯的少年，单纯的我，单纯的你 ！'
+        },
+        methods: {
+
+        }
+    });
+
+    //过滤器的定义语法
+    // Vue.filter('过滤器的名称',function () { });
+
+    //过滤器中的function，第一个参数已经被规定死了，永远都是过滤器管道符前面传过来的数据
+
+
+</script>
+</body>
+</html>
+
+
+<!--过滤器调用时候的格式    {{ name | 过滤器的名称 }}      -->

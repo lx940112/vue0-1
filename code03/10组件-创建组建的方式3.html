@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <mycom3></mycom3>
+    <!--<login></login>-->
+</div>
+<template id="templ">
+    <div>
+        <h1>这是通过template元素，在外部定义的组件结构，这个方式有代码的智能提示和高亮</h1>
+        <h4>好用不错</h4>
+    </div>
+</template>
+
+
+<div id="app2">
+    <mycom3></mycom3>
+    <login></login>
+</div>
+
+<template id="temp2">
+    <h1>这是私有的login组件2</h1>
+</template>
+
+<script>
+    <!--全局组件-->
+    Vue.component('mycom3', {
+        template: '#templ'
+    });
+
+    // 创建Vue实例，得到ViewModel
+    var vm = new Vue({
+        el: "#app",
+        data: {},
+        methods: {}
+    });
+
+
+    var vm2 = new Vue({
+        el: "#app2",
+        data: {},
+        methods: {},
+        // 实例内部私有过滤器
+        filters: {},
+        // 实例内部私有指令
+        directives: {},
+        // 实例内部私有组件
+        components: {
+            login:{
+                // template: '<h1>这是私有的login组件</h1>'
+                template: '#temp2'
+            }
+        },
+        //生命周期钩子函数
+        beforeCreate() {},
+        created() {},
+        beforeMount() {},
+        mounted() {},
+        beforeUpdate() {},
+        updated() {},
+        beforeDestroy() {},
+        destroyed() {},
+
+
+    });
+</script>
+</body>
+</html>

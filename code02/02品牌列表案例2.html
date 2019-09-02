@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 1、导入vue.js -->
+    <script src="../js/vue.js"></script>
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <style>
+        [v-cloak]{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<!--2、创建一个要控制的区域-->
+<div id="app">
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">添加品牌</h3>
+        </div>
+        <div class="panel-body form-inline">
+            <label>
+                ID:
+                <input type="text" v-model="id" class="form-control">
+            </label>
+            <label>
+                NAME:
+                <input type="text" v-model="name" class="form-control" @keyup.f2="add()">
+            </label>
+
+            <input type="button" value="添加" @click="add()" class="btn btn-primary">
+
+            <label>
+                搜索名字关键字:
+                <!--注意：Vue中所有的指令，在调用的时候都以 v- 开头 -->
+                <input type="text" v-model="keyword" class="form-control" id="search" v-focus v-color="'blue'">
+            </label>
+
+        </div>
+    </div>
+
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>NAME</th>
+                <th>CREATE_TIME</th>
+                <th>OPERATION</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!--之前，v-for中的数据都是直接从data上的list中直接渲染过来的-->
+            <!--现在，我们自第一了一个search方法，同时吧所有的关键字通过传参的形式传递给search方法-->
+            <!--在search方法内部，通过执行for循环，把所有符合搜索关键字的数据保存到一个新的数组中返回-->
+            <tr v-for="item in search(keyword)" :key="item.id" >
+                <td v-cloak>{{ item.id }}</td>
+                <td v-cloak>{{ item.name }}</td>
+                <td v-cloak>{{ item.createTime | dateFormat('yyyy-MM-DD HH:mm:ss') }}</td>
+                <td v-cloak><a @click.prevent="del(item.id)" >删除</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="app2">
+    <h3 v-color="'pink'" v-fontweight="900" v-fontsize="30">{{ dt | dateFormat('') }}</h3>
+</div>
+
+<script>
+    //全局的过滤器，进行时间的格式化
+    //                                            ES6参数默认值
+    Vue.filter('dateFormat', function (dateStr,pattern='') {
+        const dt = new Date(dateStr);
+        let year = dt.getFullYear();
+        let month = dt.getMonth()+1;
+        let date = dt.getDate();
+        // console.log("全局");
+        if (pattern.toLowerCase() === "yyyy-mm-dd") {
+            return `${year}-${month}-${date}`;
+        } else {
+            let hh = dt.getHours();
+            let mm = dt.getMinutes();
+            let ss = dt.getSeconds();
+            return `${year}-${month}-${date} ${hh}:${mm}:${ss} ~~~~` ;
+        }
+
+
+    });
+
+
+    //自定义全局按键修饰符
+    Vue.config.keyCodes.f2 = 113;
+
+    /**
+     *  使用 Vue.directive() 定义全局的指令 v-focus
+     *  其中：参数1：指令的名称；注意：定义的时候指令名称的前边不需要加 v- 前缀
+     *  但是在调用的时候必须在指令名称前面加上 v- 前缀来进行调用
+     *  参数2：是一个对象，这个对象身上有一些指令相关的操作
+     *
+     *
+     * 注意：在每个函数中，第一个参数永远都是el，标识被绑定了指令的那个元素，这个el参数是一个原生的JS对象
+     *  bind：只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置。
+     *      在元素刚绑定了指令的时候，还没有插入到 DOM 中去，这时候调用focus 方法没有作用
+     *      因为一个元素只有插入到DOM 之后才能获得焦点
+     *  inserted：被绑定元素插入父节点时调用 (仅保证父节点存在，但不一定已被插入文档中)。
+     *  update：所在组件的 VNode 更新时调用，但是可能发生在其子 VNode 更新之前。指令的值可能发生了改变，也可能没有。但是你可以通过比较更新前后的值来忽略不必要的模板更新 (详细的钩子函数参数见下)。
+     *      可能会执行多次
+     *  componentUpdated：指令所在组件的 VNode 及其子 VNode 全部更新后调用。
+     *  unbind：只调用一次，指令与元素解绑时调用。
+     *
+     */
+    Vue.directive('focus',{
+        inserted: function (el) {
+            el.focus();
+            // 和JS行为有关的操作，最好在 inserted 中去执行，放置JS行为不生效
+        }
+    });
+    // 自定义字体颜色的指令
+    Vue.directive('color', {
+        // 样式，只要通过指令绑定给了元素，不管这个元素有没有被插入到页面中去，这个元素肯定有了一个内联的样式
+        // 将来元素肯定会显示到页面中，这时候浏览器的渲染引擎必然会解析样式，应用给这个元素
+        bind: function (el,bingding) {
+            // el.style.color = 'red';
+            el.style.color = bingding.value;
+            // 和样式相关的操作，一般都可以在bind中执行
+            console.log(bingding.value,bingding.expression,bingding.name);
+            console.log(bingding);
+        }
+    });
+
+
+    //3、创建一个vue实例
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            id: '',
+            name: '',
+            list: [
+                { id: 1, name: '奔驰', createTime: new Date() },
+                { id: 2, name: '宝马', createTime: new Date() },
+                { id: 3, name: '奥迪', createTime: new Date() },
+            ],
+            keyword: '',//搜索的关键字
+
+        },
+        methods: {
+            add() {
+                // console.log("add");
+                /**
+                 * 分析
+                 * 1、获取到 id 和 name ，直接从data上面获取
+                 * 2、组织出一个对象
+                 * 3、调用数组的相关方法将该对象添加到data上的list中
+                 * 4、注意：在vue中，已经实现了数据的双向绑定，每当我们修改data中的数据，
+                 * vue会默认监听到数据的改动，自动把最新的数据应用到页面上
+                 * 5、当我们意识到第四步的时候，就证明大家已经入门vue了，
+                 * 我们更多的是在进行VM中model数据的操作，同时在操作model数据的时候指定业务逻辑操作
+                 * @type {{createTime: Date, name: *, id: *}}
+                 */
+                if (this.id != '' && this.name != '') {
+                    const newData = {id: this.id, name: this.name, createTime: new Date()};
+                    this.list.push(newData);
+                    this.id = this.name = '';
+                }
+            },
+            del(id){
+                // console.log("delete", id);
+                /**
+                 * 分析
+                 * 1、如何根据ID 找到要删除的这项索引
+                 * 2、找到索引直接调用数组的 splice 方法
+                 */
+                //方法一: some
+                /*this.list.some((item, i) => {
+                    if (item.id == id) {
+                        this.list.splice(i, 1);
+                        // 在数组的some方法中，如果return true 就会立刻种子这个数组的后续循环
+                        return true;
+                    }
+                });*/
+                //方法二: findIndex
+                const index = this.list.findIndex(item => {
+                    if (item.id == id) {
+                        return true;
+                    }
+                });
+                this.list.splice(index, 1);
+            },
+            search(keyword) {//根据关键字进行数据搜索
+                /*const newList = [];
+                this.list.forEach(item => {
+                    if (item.name.indexOf(keyword) != -1) {
+                        newList.push(item)
+                    }
+                });
+                return newList;*/
+
+                // 注意：forEach some filter findIndex 这些都属于数组的新方法
+                return this.list.filter(item => {
+                    // if (item.name.indexOf(keyword) != -1) {}
+                    /**
+                     * 注意：ES6 中为字符串提供了一个新方法叫做 String.prototype.includes('包含的字符串')
+                     * 如果包含返回true，否则返回false
+                     */
+                    if (item.name.includes(keyword)) {
+                        return item;
+                    }
+                });
+
+            }
+        }
+    });
+
+    //如何定义私有的过滤器
+    var vm2 = new Vue({
+        el: "#app2",
+        data: {
+            dt: new Date(),
+        },
+        methods: {
+
+        },
+        // 过滤器调用的时候采用就近原则，如果私有过滤器和全局过滤器名称一致，优先调用私有过滤器
+        filters: { //第一私有过滤器，过滤器有两个条件：过滤器名称和处理函数
+            dateFormat: function (dateStr, pattern='') {
+                const dt = new Date(dateStr);
+                let year = dt.getFullYear();
+                let month = (dt.getMonth()+1).toString().padStart(2, '0');
+                let date = (dt.getDate()).toString().padStart(2, '0');
+                // console.log("私有");
+                if (pattern.toLowerCase() === "yyyy-mm-dd") {
+                    return `${year}-${month}-${date}`;
+                } else {
+                    let hh = dt.getHours();
+                    let mm = (dt.getMinutes()).toString().padStart(2, '0');
+                    let ss = (dt.getSeconds()).toString().padStart(2, '0');
+                    return `${year}-${month}-${date} ${hh}:${mm}:${ss}`;
+                }
+            },
+            //使用ES6中的字符串的新方法String.prototype.padStart()方法进行补零操作
+        },
+        directives: { //自定义私有指令
+            /**
+             * 特别注意，大小写，自定义指令最好小写，大写有问题
+             */
+            'fontweight': {
+                bind: function (el, binding) {
+                    el.style.fontWeight = binding.value;
+                }
+            },
+            /**
+             * 函数简写
+             * 在很多时候，你可能想在 bind 和 update 时触发相同行为，而不关心其它的钩子。比如这样写:
+             *
+             * 下边的等同于写到bind和update中去
+             */
+            'fontsize': function (el, bingdings) {
+                el.style.fontSize = parseInt(bingdings.value) + 'px';
+            }
+
+        },
+
+
+    });
+
+    // document.getElementById("search").focus();
+</script>
+</body>
+</html>
+
+
+
