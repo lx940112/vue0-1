@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../js/vue.js"></script>
+    <!--1. 安装 vue-router 路由模块-->
+    <script src="../js/vue-router.js"></script>
+    <style>
+        .router-link-active {
+            color: #4cae4c;
+            font-size: 50px;
+            font-weight: 800;
+            text-decoration: underline;
+            background-color: #90d3b8;
+        }
+        .myactive{
+            color: #1b6d85;
+            font-size: 50px;
+            font-weight: 800;
+            text-decoration: underline;
+            background-color: #90d3b8;
+        }
+        .v-enter,
+        .v-leave-to{
+            opacity: 0;
+            transform: translateX(150px);
+        }
+        .v-enter-active,
+        .v-leave-active{
+            transition: all 0.6s ease;
+        }
+
+    </style>
+</head>
+<body>
+<div id="app">
+
+    <!--<a href="#/login">登录</a>
+    <a href="#/register">注册</a>-->
+
+    <!--<router-link to="/login">登录</router-link>
+    <router-link to="/register">注册</router-link>-->
+    <router-link to="/login" tag="span">登录</router-link>
+    <router-link to="/register" tag="span">注册</router-link>
+
+    <!--这是vue-router提供的元素，专门用来做占位符的
+    将来路由规则匹配到的组件就会展示到这个router-view中去-->
+    <!--所以我们可以吧router-view认为是一个占位符-->
+
+    <transition mode="out-in">
+        <router-view></router-view>
+    </transition>
+</div>
+<script>
+    // 组件模板对象
+    var login = {
+        template: '<h1>登录组件</h1>'
+    };
+    var register = {
+        template: '<h1>注册组件</h1>'
+    };
+
+
+    // 2.创建一个路由对象,当导入vue-router包之后，在window全局对象中就有了一个路由的构造函数叫做VueRouter
+    // 在new 路由对象的时候，可以为构造函数传递一个配置对象
+
+    var routerObj = new VueRouter({
+        // 这个配置对象中的route表示(路由匹配规则)的意思
+        // route
+        // 路由匹配规则
+        routes:[
+            /**
+             * 每个路由规则都是一个对象，这个规则对象身上有两个必须的属性：
+             * 属性一：是path，表示监听哪个路由链接地址
+             * 属性二：是component，表示如果路由器是前面匹配到的path，则展示component属性对应的那个组件
+             */
+            // 注意： component的属性值必须是一个组件模板对象，不能使组件的引用名称
+            // 这种方式不推荐
+            // {path: '/', component: login },
+            // 这里的redirect和Node中的redirect完全是两码事
+            {path: '/', redirect: '/login' },
+            {path: '/login', component: login },
+            {path: '/register', component: register },
+
+        ],
+        linkActiveClass: 'myactive',
+    });
+
+    var vm = new Vue({
+        el: "#app",
+        data: {
+
+        },
+        methods: {
+
+        },
+        // 将路由规则对象，注册到vm实例上，用来监听URL地址的变化，然后展示对应的组件
+        router: routerObj,
+
+    });
+</script>
+</body>
+</html>

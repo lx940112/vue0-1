@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+<div id="app">
+
+    <!--分析：-->
+    <!--1.监听文本框数据的改变，这样才能知道什么时候去拼接fullname-->
+    <!--2.如何监听到文本框数据的改变-->
+
+    <!--<label>
+        <input type="text" v-model="firstname" @keyup="getFullName">+
+    </label>
+    <label>
+        <input type="text" v-model="lastname" @keyup="getFullName">=
+    </label>-->
+    <label>
+        <input type="text" v-model="firstname">+
+    </label>
+    <label>
+        <input type="text" v-model="lastname">=
+    </label>
+    <label>
+        <input type="text" v-model="fullname">
+    </label>
+</div>
+<script>
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            firstname: '',
+            lastname: '',
+            fullname: '',
+        },
+        methods: {
+            getFullName() {
+                this.fullname = this.firstname + ' - ' + this.lastname;
+            }
+        },
+        // 使用这个属性，可以监视data中指定数据的变化，然后触发这个watch中对应的function处理函数
+        watch:{
+            // 中间有-必须加引号，如果没有可以不加
+            'firstname': function (newVal, oldVal) {
+                console.log(newVal, oldVal);
+                // 方法一
+                // this.fullname = this.firstname + ' - ' + this.lastname;
+                // 方法二
+                this.fullname = newVal + ' - ' + this.lastname;
+            },
+            lastname:function (newVal) {
+                this.fullname = this.firstname + ' - ' + newVal;
+            }
+        }
+    });
+</script>
+</body>
+</html>
